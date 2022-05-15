@@ -1,20 +1,17 @@
 import java.util.ArrayList;
 
 public class Doc {
-    String word;
-    ArrayList<String> url=new ArrayList<String>();
+    String url="";
     ArrayList<String> tag=new ArrayList<String>();
     int DF;
 
-    public Doc(String word, String url,String tag) {
-        this.word = word;
-
-        addUrl(url);
+    public Doc( String url,String tag) {
+        this.url = url;
         addTag(tag);
     }
 
-    public void addUrl(String url) {
-        this.url.add(url);
+    public void setUrl(String url) {
+        this.url = url;
     }
 
     public void addTag(String tag) {

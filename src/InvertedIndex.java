@@ -7,13 +7,17 @@ import java.util.*;
 
 class Index {
     Map<Integer,String> sources;
-    HashMap<String, Doc> index;
+    HashMap<String, ArrayList<Doc>> index;
     static List<String> stopwords;
     Index() throws IOException {
         sources = new HashMap<Integer,String>();
-        index = new HashMap<String, Doc>();
+        index = new HashMap<String, ArrayList<Doc>>();
         loadStopwords();
     }
+
+
+
+
     public static void loadStopwords() throws IOException {
         stopwords = Files.readAllLines(Paths.get("english_stopwords.txt"));
     }
@@ -26,14 +30,33 @@ class Index {
             String[] words = content[j].toString().split("\\W+");
             for (String word : words) {
                 word = word.toLowerCase();
+                    Doc d = new Doc(url, tag);
                 if (!index.containsKey(word)) {
-                    Doc d = new Doc(word, url, tag);
-                    index.put(word, d);
+                    // the hashmap doesn't containts the word
+                    index.put(word,new ArrayList<Doc>());
+                    d.incDF();
+                    index.get(word).add(d);
+
                 }
-                if (!index.get(word).tag.contains(tag))
-                    index.get(word).addTag(tag);
-                if (!index.get(word).url.contains(url))
-                    index.get(word).addUrl(url);
+                else {
+                    // the hashmap containts the word
+                    // now we want to check if the url is there and if exist check for the tags
+                    // if the url is not there we will add a new doc to doclist
+                    boolean found=false;
+                    for (Doc doc:index.get(word)) {
+                        if (doc.url.equals(url)) {
+                            found=true;
+                            doc.incDF();
+                            if(!(doc.tag.contains(tag)))
+                                doc.tag.add(tag);
+                        }
+                    }
+                    if (!found){
+                        d.incDF();
+                        index.get(word).add(d);
+                    }
+
+                }
             }
             i++;
         }
@@ -62,32 +85,24 @@ class Index {
 
 public class InvertedIndex {
 
-
-    public static void main(String args[]) throws Exception {
+    public static HashMap<String, ArrayList<Doc>> Indexer(String[] urls) throws Exception {
         URLReader urlcontent = new URLReader();
-        String url="https://stackoverflow.com/questions/46906163/how-to-write-data-to-firebase-with-a-java-program";
-        Map<String, String> page_content= urlcontent.getContent(url);
-        // System.out.println(page_content.);
-
-        Index index = new Index();
-        index.buildIndexfromlist(page_content,url);
-        url="https://www.socialmediatoday.com/news/8-of-the-most-important-html-tags-for-seo/574987/";
-        page_content= urlcontent.getContent(url);
-        index.buildIndexfromlist(page_content,url);
-
-        url="https://clutch.co/seo-firms/resources/meta-tags-that-improve-seo";
-        page_content= urlcontent.getContent(url);
-        index.buildIndexfromlist(page_content,url);
-        index.index.keySet().removeAll(index.stopwords);
-        for (String s:index.index.keySet()) {
-            System.out.println(s+" : "+index.index.get(s).url+ index.index.get(s).tag);
+         Index index = new Index();
+        Map<String, String> page_content;
+        for (String url:urls) {
+            System.out.println(url);
+            page_content=urlcontent.getContent(url);
+            index.buildIndexfromlist(page_content,url);
 
         }
-//        System.out.println("Print search phrase: ");
-//        BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
-//        String phrase = in.readLine();
-//        index.find(phrase);
+        index.index.keySet().removeAll(index.stopwords);
+        for (String s:index.index.keySet()) {
+            System.out.println("\n\n("+s+") : ");
+            for (Doc d:index.index.get(s)) {
+                System.out.println("url: "+d.url+"  Tags: "+d.tag+"Document Frequency: "+d.DF);
+            }
 
-
+        }
+        return index.index;
     }
 }

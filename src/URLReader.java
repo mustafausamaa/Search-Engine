@@ -27,8 +27,18 @@ public class URLReader {
         String h2= body.text();
         return h2;
     }
+    String get_H3(){
+        Elements body = doc.select("h3");
+        String h3= body.text();
+        return h3;
+    }
     String get_p(){
         Elements body = doc.select("p");
+        String p= body.text();
+        return p;
+    }
+    String get_table(){
+        Elements body = doc.select("table");
         String p= body.text();
         return p;
     }
@@ -39,6 +49,8 @@ public class URLReader {
         temp.put("title",get_Title());
         temp.put("h1",get_H1());
         temp.put("h2",get_H2());
+        temp.put("h3",get_H3());
+        temp.put("table",get_table());
         temp.put("p",get_p());
         return temp;
     }
