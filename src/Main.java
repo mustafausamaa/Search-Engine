@@ -1,51 +1,48 @@
+import org.jsoup.Connection;
+import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.Map;
+import java.util.Queue;
+import java.net.URL;
 
 public class Main {
     public static void main(String args[]) throws Exception {
         int threadNumber=3;
-//        ArrayList<String> linksSet=new ArrayLis<>
-        String[] urls={"https://stackoverflow.com/questions/46906163/how-to-write-data-to-firebase-with-a-java-program",
-                "https://www.wikipedia.org/",
-                "https://clutch.co/seo-firms/resources/meta-tags-that-improve-seo",
-                "https://www.investopedia.com/terms/e/economics.asp",
-                "https://pubmed.ncbi.nlm.nih.gov/",
-                "https://github.com/",
-                "https://en.wikipedia.org/wiki/Film",
-                "https://www.coursera.org/",
-                "https://en.wikipedia.org/wiki/Engineering",
-                "https://www.udacity.com/online-learning-for-individuals?utm_source=gsem_brand&utm_medium=ads_r&utm_campaign=12907726228_c_individuals&utm_term=128479270744&utm_keyword=udacity_e&gclid=CjwKCAjw7IeUBhBbEiwADhiEMc95nes0YLsQQnbyMxuQ35r4hDvBNtFykC8316sE3JwazuPOqxRs5RoClGEQAvD_BwE"
+        Queue<String> seedSet=new LinkedList<String>();
+        seedSet.add("https://stackoverflow.com/questions/46906163/how-to-write-data-to-firebase-with-a-java-program");
+        seedSet.add("https://www.socialmediatoday.com/news/8-of-the-most-important-html-tags-for-seo/574987/");
+        seedSet.add("https://clutch.co/seo-firms/resources/meta-tags-that-improve-seo");
 
-        };
-        ArrayList<Document>documents=new ArrayList<Document>();
-        ArrayList<Thread> threads=new ArrayList<Thread>();
-        ArrayList<WebCrawler> crawlingThreads=new ArrayList<WebCrawler>();
-        for (int i=0;i<10;i++)
-        {
-            WebCrawler crawlingThread=new WebCrawler(urls[i],2,i,urls);
-            crawlingThreads.add(crawlingThread);
-            Thread newThread=new Thread(crawlingThread);
-            threads.add(newThread);
-            newThread.start();
-        }
-        for (int i=0; i<threads.size();i++)
-        {
-            threads.get(i).join();
-        }
-        for(int i=0;i<crawlingThreads.size();i++)
-        {
-            System.out.print("Thread with id : "+crawlingThreads.get(i).threadId+ " downloaded pages are :"+"\n");
-            for(int j=0;j<crawlingThreads.get(i).documents.size();j++)
-            {
-                documents.add(crawlingThreads.get(i).documents.get(j));
+        WebCrawler crawlingThread=new WebCrawler(14,seedSet);
+        seedSet.toArray();
+//        String url1="https://www.socialmediatoday.com/news/8-of-the-most-important-html-tags-for-seo/574987/";
+//        String url2="https://www.socialmediatoday.com/news/8-of-the-most-important-html-tags-for-seo/574987/#skip-link-target";
+
+        try(BufferedReader in = new BufferedReader(
+                new InputStreamReader(new URL("https://clutch.co/seo-firms/resources/meta-tags-that-improve-seo/robots.txt").openStream()))) {
+            String line = null;
+            while((line = in.readLine()) != null) {
+                System.out.println(line);
             }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        //--documents is a list containing the downloaded pages
-        //-------------------------------------------------------------------------------------
+
+//        for(int i=0;i<crawlingThread.visitedLinks.size();i++)
+//        {
+//            System.out.print(crawlingThread.visitedLinks.get(i)+"\n");
+//            System.out.print(crawlingThread.documents.get(i).title()+"\n");
+//        }
+
 //        InvertedIndex indexer = new InvertedIndex();
 //        indexer.Indexer(urls);
     }
 }
-//-----------------------------------------------------------------------------------------------------------------------------
+
+
