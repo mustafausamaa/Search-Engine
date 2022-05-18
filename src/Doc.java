@@ -1,9 +1,40 @@
 import java.util.ArrayList;
 
 public class Doc {
-    String url="";
-    ArrayList<String> tag=new ArrayList<String>();
-    int DF;
+    public String url="";
+    public ArrayList<String> tag=new ArrayList<String>();
+    public Doc(){}
+
+    @Override
+    public String toString() {
+        return "Doc{" +
+                "url='" + url + '\'' +
+                ", tag=" + tag +
+                ", TF=" + TF +
+                '}';
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public ArrayList<String> getTag() {
+        return tag;
+    }
+
+    public void setTag(ArrayList<String> tag) {
+        this.tag = tag;
+    }
+
+    public int getTF() {
+        return TF;
+    }
+
+    public void setTF(int TF) {
+        this.TF = TF;
+    }
+
+    int TF;
 
     public Doc( String url,String tag) {
         this.url = url;
@@ -18,7 +49,7 @@ public class Doc {
         this.tag.add(tag);
     }
 
-    public void incDF() {
-        DF++;
+    public void incTF() {
+        TF++;
     }
 }
