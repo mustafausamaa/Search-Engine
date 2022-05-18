@@ -3,7 +3,7 @@ import java.util.ArrayList;
 public class Doc {
     String url="";
     ArrayList<String> tag=new ArrayList<String>();
-    int DF;
+    int TF;
 
     public Doc( String url,String tag) {
         this.url = url;
@@ -18,7 +18,7 @@ public class Doc {
         this.tag.add(tag);
     }
 
-    public void incDF() {
-        DF++;
+    public void incTF() {
+        TF++;
     }
 }
