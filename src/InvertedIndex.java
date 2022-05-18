@@ -3,7 +3,8 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
 import java.lang.Object;
-
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 import org.apache.lucene.analysis.*;
@@ -11,13 +12,11 @@ import org.apache.lucene.analysis.*;
 
 class Index {
     HashMap<String, ArrayList<Doc>> index;
-    HashMap<String, Integer> TF;
     static List<String> stopwords;
     int noOfWords=0;
 
     Index() throws IOException {
         index = new HashMap<String, ArrayList<Doc>>();
-        TF = new  HashMap<String, Integer>();
         loadStopwords();
     }
 
@@ -27,49 +26,56 @@ class Index {
             Collection<String> s= List.of(new String[]{" 1", " 2", " 3", " 4", " 5", " 6", " 7", " 8", " 9", " 0", " A", " Q"});
             stopwords.addAll(s);
     }
-
-    public void buildIndexfromlist(Map<String, String> files, String url) {
+    public String stemmWord(String originalWord){
         PorterStemmer stem = new PorterStemmer();
+        return stem.stem(originalWord);
+    }
+    public List<String> removeStoppingWords_Stemming(Object content)
+    {
+        List<String> listOfWords = new ArrayList<String>();
+        //split sentences to words
+        listOfWords.addAll(Arrays.asList(content.toString().split("\\W+")));
+        //remove stopping words;
+        listOfWords.removeAll(stopwords);
+
+        // Compile the ReGex
+        String regex = "[0-9]+";
+        Pattern p = Pattern.compile(regex);
+
+        for (int i = 0; i < listOfWords.size(); i++) {
+            Matcher m = p.matcher(listOfWords.get(i));
+            if (m.matches())
+                listOfWords.remove(i);
+            //stemming words
+            listOfWords.set(i,stemmWord(listOfWords.get(i)));
+        }
+        return listOfWords;
+    }
+
+    public void buildIndex(Map<String, String> files, String url) {
         Object[] tags = files.keySet().toArray();
         Object[] content = files.values().toArray();
+        List<String> listOfWords = new ArrayList<String>();
+
         for (int j = 0; j < content.length; j++) {
             String tag = tags[j].toString();
-            List<String> listOfWords = new ArrayList<String>();
-            //split sentences to words
-            listOfWords.addAll(Arrays.asList(content[j].toString().split("\\W+")));
-            //remove stopping words;
-            listOfWords.removeAll(stopwords);
-            for (int i = 0; i < listOfWords.size(); i++) {
-                if (listOfWords.get(i).equals("1")||listOfWords.get(i).equals("2")||
-                        listOfWords.get(i).equals("3")||listOfWords.get(i).equals("4")||
-                        listOfWords.get(i).equals("5")||listOfWords.get(i).equals("6")||
-                        listOfWords.get(i).equals("7")||listOfWords.get(i).equals("8")||
-                        listOfWords.get(i).equals("9")||listOfWords.get(i).equals("0")||listOfWords.get(i).equals("10")
-                )
-                    listOfWords.remove(i);
-                //stemming words
-                listOfWords.set(i, stem.stem(listOfWords.get(i)));
-            }
-
+            listOfWords= removeStoppingWords_Stemming(content[j]);
+            // put words in hashmap
             for (String word : listOfWords) {
                 noOfWords++;
                 word = word.toLowerCase();
                 Doc d = new Doc(url, tag);
                 if (! index.containsKey(word)) {
-                    // the hashmap doesn't containts the word
-                    TF.put(word,1);
+                    // the hashmap doesn't contain the word
                     index.put(word, new ArrayList<Doc>());
                     d.incTF();
                     index.get(word).add(d);
 
                 } else {
-                    // the hashmap containts the word
+                    // the hashmap contains the word
                     // now we want to check if the url is there and if exist check for the tags
-                    // if the url is not there we will add a new doc to doclist
+                    // if the url is not there we will add a new doc to doc-list
                     boolean found = false;
-                    int tfnew= TF.get(word);
-                    tfnew++;
-                    TF.replace(word,tfnew);
                     for (Doc doc : index.get(word)) {
                         if (doc.url.equals(url)) {
                             found = true;
@@ -87,24 +93,6 @@ class Index {
             }
         }
     }
-
-//    public void find(String phrase){
-//        String[] words = phrase.split("\\W+");
-//        HashSet<Integer> res = new HashSet<Integer>(index.get(words[0].toLowerCase()));
-//        for(String word: words){
-//            res.retainAll(index.get(word));
-//        }
-//
-//        if(res.size()==0) {
-//            System.out.println("Not found");
-//
-//            return;
-//        }
-//        System.out.println("Found in: ");
-//        for(int num : res){
-//            System.out.println("\t"+sources.get(num));
-//        }
-//    }
 
 }
 
@@ -131,7 +119,7 @@ public class InvertedIndex {
         for (String url : urls) {
             System.out.println(url);
             page_content = urlcontent.getContent(url);
-            index.buildIndexfromlist(page_content, url);
+            index.buildIndex(page_content, url);
 
         }
         index.index.keySet().removeAll(index.stopwords);
