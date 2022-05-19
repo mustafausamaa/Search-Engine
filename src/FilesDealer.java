@@ -1,3 +1,6 @@
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Scanner;
@@ -122,5 +125,16 @@ public class FilesDealer {
             System.out.print("error reading from the hashedDocuments file\n");
             return "error";
         }
+    }
+
+    static public synchronized void fillRankerFile(Document document,String url)
+    {
+        FilesDealer.updateFile(url,"urlsRanker.txt");
+        FilesDealer.updateFile("\n--contains--","urlsRanker.txt");
+        for (Element hyperLink : document.select("a[href]")) {
+            String nextPageLink = hyperLink.absUrl("href");
+            FilesDealer.updateFile(nextPageLink,"urlsRanker.txt");
+        }
+        FilesDealer.updateFile("--------------------------------------------------------------------------------------","urlsRanker.txt");
     }
 }

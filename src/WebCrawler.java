@@ -54,7 +54,6 @@ public class WebCrawler implements Runnable {
                 Connection connection = Jsoup.connect(url);
                 Document document = connection.get();
                 if (connection.response().statusCode() == 200) {
-
                     if (FilesDealer.checkIfCompressedDocumentIsInsideCompressedDocumentsFile(document.title()+hashString).equals("notVisited")&&FilesDealer.checkIfUrlIsInsideVisitedLinksFile(url).equals("notVisited")) {
                         FilesDealer.updateFile(document.title()+hashString,"compressedDocuments.txt");
                         System.out.print(" thread:  "+threadId+" got the url of the webpage  and it is : " + url + "\n");
@@ -112,7 +111,8 @@ public class WebCrawler implements Runnable {
             String normalizedUrl=urlNormalizer(url);
             Document document = requestDocument(normalizedUrl);
             if (document != null) {
-
+                //here is synchronized function called to make a text file for ranker with its data
+                FilesDealer.fillRankerFile(document,normalizedUrl);
                 for (Element hyperLink : document.select("a[href]")) {
                     String nextPageLink = hyperLink.absUrl("href");
                     String normalizedNextPageLink = urlNormalizer(nextPageLink);
@@ -124,9 +124,11 @@ public class WebCrawler implements Runnable {
                         }
                     }
                 }
-                FilesDealer.updatePagesNumberToBeCrawled(FilesDealer.readRemainingPagesToBeCrawled()- 1);
-                String str=FilesDealer.removeFromSeedSetFileAndGetTheUrl();
-                Crawl(str);
+                if(FilesDealer.readRemainingPagesToBeCrawled()>0) {
+                    FilesDealer.updatePagesNumberToBeCrawled(FilesDealer.readRemainingPagesToBeCrawled() - 1);
+                    String str = FilesDealer.removeFromSeedSetFileAndGetTheUrl();
+                    Crawl(str);
+                }
             }
 
 
