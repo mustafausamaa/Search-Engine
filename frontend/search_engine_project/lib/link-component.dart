@@ -31,7 +31,7 @@ class LinkViewComponent extends StatelessWidget {
         ],
       ),
       padding: EdgeInsets.all(10),
-      height: 80,
+      // height: 80,
       child: RichText(
           // maxLines: 2,
           text: TextSpan(children: [
