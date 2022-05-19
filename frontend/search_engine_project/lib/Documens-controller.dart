@@ -22,8 +22,8 @@ class DocumentsController extends MomentumController<DocumentsModel> {
 
   Future<void> getSearchDocuments(searchInput, context) async {
     model.update(isLoading: true);
-    var url = Uri.https(
-        "http://localhost:8080", "/documents", {"searchWord": "searchInput"});
+    var url =
+        Uri.parse("http://10.0.2.2:49480/documents/" + searchInput.toString());
     var response = await http.get(
       url,
       headers: <String, String>{
@@ -36,9 +36,8 @@ class DocumentsController extends MomentumController<DocumentsModel> {
       print(response.body);
       List Documents = [];
       model.update(searchDocuments: Documents);
-      var jsonResponse =
-          convert.jsonDecode(response.body) as Map<String, dynamic>;
-      for (var responseItem in jsonResponse['results']) {
+      var jsonResponse = convert.jsonDecode(response.body) as List<dynamic>;
+      for (var responseItem in jsonResponse) {
         print(responseItem["name"]);
         final field = LinkViewComponent(
           url: responseItem["url"],
@@ -49,7 +48,9 @@ class DocumentsController extends MomentumController<DocumentsModel> {
       }
       model.update(searchDocuments: Documents);
       model.update(isLoading: false);
-    } else
+    } else {
+      model.update(isLoading: false);
       print("error");
+    }
   }
 }
