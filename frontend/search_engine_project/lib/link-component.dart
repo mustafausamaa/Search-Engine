@@ -7,7 +7,11 @@ class LinkViewComponent extends StatelessWidget {
   final url;
   final title;
   final description;
-  const LinkViewComponent({Key key, this.url, this.title, this.description})
+  const LinkViewComponent(
+      {Key key,
+      this.url = "www.google.com",
+      this.title = "no title",
+      this.description = "no description"})
       : super(key: key);
 
   @override
