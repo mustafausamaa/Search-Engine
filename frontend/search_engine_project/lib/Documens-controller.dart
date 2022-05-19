@@ -23,7 +23,7 @@ class DocumentsController extends MomentumController<DocumentsModel> {
   Future<void> getSearchDocuments(searchInput, context) async {
     model.update(isLoading: true);
     var url = Uri.https(
-        "localhost:8080", "/documents", {"searchWord": "searchInput"});
+        "http://localhost:8080", "/documents", {"searchWord": "searchInput"});
     var response = await http.get(
       url,
       headers: <String, String>{
